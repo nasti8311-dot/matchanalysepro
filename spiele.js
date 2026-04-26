@@ -207,48 +207,7 @@ const news = [
   }
 ];
 
-const tables = {
-  "Bundesliga": [
-    { pos: 1, team: "Bayer Leverkusen", wappen: "https://crests.football-data.org/3.svg", spiele: 30, punkte: 76, tore: "+52" },
-    { pos: 2, team: "Bayern München", wappen: "https://crests.football-data.org/5.svg", spiele: 30, punkte: 66, tore: "+45" },
-    { pos: 3, team: "Borussia Dortmund", wappen: "https://crests.football-data.org/4.svg", spiele: 30, punkte: 60, tore: "+25" },
-    { pos: 4, team: "RB Leipzig", wappen: "https://crests.football-data.org/721.svg", spiele: 30, punkte: 58, tore: "+30" },
-    { pos: 5, team: "VfB Stuttgart", wappen: "https://crests.football-data.org/10.svg", spiele: 30, punkte: 55, tore: "+28" },
-    { pos: 8, team: "SC Freiburg", wappen: "https://crests.football-data.org/17.svg", spiele: 30, punkte: 42, tore: "-2" },
-    { pos: 9, team: "Werder Bremen", wappen: "https://crests.football-data.org/12.svg", spiele: 30, punkte: 41, tore: "-5" }
-  ],
-  "2. Bundesliga": [
-    { pos: 1, team: "FC St. Pauli", wappen: "https://crests.football-data.org/20.svg", spiele: 30, punkte: 63, tore: "+22" },
-    { pos: 2, team: "Holstein Kiel", wappen: "https://crests.football-data.org/720.svg", spiele: 30, punkte: 58, tore: "+18" },
-    { pos: 3, team: "Hamburger SV", wappen: "https://crests.football-data.org/7.svg", spiele: 30, punkte: 56, tore: "+20" },
-    { pos: 4, team: "SC Paderborn 07", wappen: "https://crests.football-data.org/28.svg", spiele: 30, punkte: 52, tore: "+12" },
-    { pos: 6, team: "Fortuna Düsseldorf", wappen: "https://crests.football-data.org/24.svg", spiele: 30, punkte: 48, tore: "+10" },
-    { pos: 10, team: "FC Schalke 04", wappen: "https://crests.football-data.org/6.svg", spiele: 30, punkte: 39, tore: "-3" }
-  ],
-  "Serie A": [
-    { pos: 1, team: "Inter Mailand", wappen: "https://crests.football-data.org/108.svg", spiele: 32, punkte: 82, tore: "+50" },
-    { pos: 2, team: "AC Mailand", wappen: "https://crests.football-data.org/98.svg", spiele: 32, punkte: 68, tore: "+28" },
-    { pos: 3, team: "Juventus", wappen: "https://crests.football-data.org/109.svg", spiele: 32, punkte: 66, tore: "+24" },
-    { pos: 4, team: "AS Roma", wappen: "https://crests.football-data.org/100.svg", spiele: 32, punkte: 58, tore: "+18" },
-    { pos: 9, team: "FC Turin", wappen: "https://crests.football-data.org/586.svg", spiele: 32, punkte: 44, tore: "+2" }
-  ],
-  "Ligue 1": [
-    { pos: 1, team: "Paris Saint-Germain", wappen: "https://crests.football-data.org/524.svg", spiele: 30, punkte: 70, tore: "+40" },
-    { pos: 2, team: "AS Monaco", wappen: "https://crests.football-data.org/548.svg", spiele: 30, punkte: 60, tore: "+25" },
-    { pos: 3, team: "OSC Lille", wappen: "https://crests.football-data.org/521.svg", spiele: 30, punkte: 58, tore: "+20" },
-    { pos: 4, team: "Olympique Marseille", wappen: "https://crests.football-data.org/516.svg", spiele: 30, punkte: 55, tore: "+15" }
-  ],
-  "Süper Lig": [
-    { pos: 1, team: "Galatasaray", wappen: "https://upload.wikimedia.org/wikipedia/en/thumb/3/3f/Galatasaray_Sports_Club_Logo.svg/512px-Galatasaray_Sports_Club_Logo.svg.png", spiele: 30, punkte: 81, tore: "+48" },
-    { pos: 2, team: "Fenerbahce", wappen: "https://upload.wikimedia.org/wikipedia/en/thumb/8/8c/Fenerbah%C3%A7e_SK_logo.svg/512px-Fenerbah%C3%A7e_SK_logo.svg.png", spiele: 30, punkte: 79, tore: "+45" }
-  ],
-  "Superliga Romania": [
-    { pos: 1, team: "FCSB", wappen: "https://upload.wikimedia.org/wikipedia/en/thumb/7/78/FC_FCSB_logo.svg/512px-FC_FCSB_logo.svg.png", spiele: 28, punkte: 64, tore: "+30" },
-    { pos: 2, team: "CFR Cluj", wappen: "https://upload.wikimedia.org/wikipedia/en/thumb/1/1b/CFR_Cluj_logo.svg/512px-CFR_Cluj_logo.svg.png", spiele: 28, punkte: 58, tore: "+22" },
-    { pos: 4, team: "Rapid Bukarest", wappen: "https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/FC_Rapid_Bucure%C8%99ti_logo.svg/512px-FC_Rapid_Bucure%C8%99ti_logo.svg.png", spiele: 28, punkte: 50, tore: "+10" },
-    { pos: 6, team: "Dinamo Bukarest", wappen: "https://upload.wikimedia.org/wikipedia/en/thumb/2/2f/FC_Dinamo_Bucure%C8%99ti_logo.svg/512px-FC_Dinamo_Bucure%C8%99ti_logo.svg.png", spiele: 28, punkte: 38, tore: "-5" }
-  ]
-};
+const tables = {};
 
 function getScoreTip(game) {
   const diff = game.wahrscheinlichkeit.heim - game.wahrscheinlichkeit.gast;
