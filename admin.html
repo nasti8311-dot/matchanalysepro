@@ -1,0 +1,308 @@
+<!-- ===================== admin.html ===================== -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin – MatchAnalysePro</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#07111f;color:#fff}a{text-decoration:none;color:inherit}.topbar{background:#050b14;border-bottom:1px solid #1d2b3d}.nav{max-width:1180px;margin:auto;padding:16px 22px;display:flex;justify-content:space-between}.logo{font-size:22px;font-weight:800;color:#24d366}.nav a{margin-left:22px;color:#d9e4f0;font-weight:600}.section{max-width:1180px;margin:auto;padding:38px 22px}.card{background:#0d1a2b;border:1px solid #20334d;border-radius:20px;padding:22px;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}label{display:block;color:#9fb0c3;font-size:13px;margin-bottom:6px}input,textarea,select{width:100%;background:#101f33;border:1px solid #263b59;color:#fff;padding:11px;border-radius:12px;margin-bottom:12px}textarea{min-height:90px}.btn{background:#24d366;color:#04120a;border:0;padding:12px 16px;border-radius:12px;font-weight:900;cursor:pointer;margin:6px 6px 6px 0}.btn.dark{background:#132a43;color:#d9e4f0}.btn.red{background:#ff3157;color:#fff}.small{font-size:13px;color:#9fb0c3}.output{min-height:240px;font-family:monospace}.match-title{font-weight:900;color:#24d366}.footer{background:#050b14;text-align:center;padding:24px;color:#8fa2b8}@media(max-width:800px){.nav{display:block}.nav a{display:inline-block;margin:12px 14px 0 0}}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="nav"><div class="logo">⚽ MatchAnalysePro Admin</div><div><a href="index.html">Website</a><a href="admin.html">Admin</a></div></div></div>
+
+<main class="section">
+  <h1>Admin Panel</h1>
+  <p class="small">Wichtig: Diese statische Admin-Seite speichert nicht direkt auf Cloudflare. Sie erzeugt dir eine neue <b>spiele.js</b>. Diese Datei lädst du danach hoch.</p>
+
+  <div class="card">
+    <h2>⚙️ Aktionen</h2>
+    <button class="btn" onclick="addGame()">+ Spiel hinzufügen</button>
+    <button class="btn" onclick="autoCalculateAll()">⚡ Auto berechnen</button>
+    <button class="btn dark" onclick="generateFile()">spiele.js erzeugen</button>
+    <button class="btn dark" onclick="downloadFile()">spiele.js downloaden</button>
+    <button class="btn red" onclick="resetToday()">Heutige Beispielspiele laden</button>
+  </div>
+
+  <div class="card">
+    <h2>🧮 Quote → Wahrscheinlichkeit Rechner</h2>
+    <p class="small">Trage die 1X2-Quoten ein. Der Rechner entfernt automatisch die Buchmacher-Marge und gibt dir saubere Prozentwerte.</p>
+    <div class="grid">
+      <div><label>Heimsieg Quote</label><input id="oddHome" type="number" step="0.01" placeholder="z. B. 1.85"></div>
+      <div><label>Remis Quote</label><input id="oddDraw" type="number" step="0.01" placeholder="z. B. 3.60"></div>
+      <div><label>Auswärtssieg Quote</label><input id="oddAway" type="number" step="0.01" placeholder="z. B. 4.20"></div>
+    </div>
+    <button class="btn" onclick="calculateOdds()">Wahrscheinlichkeiten berechnen</button>
+    <div id="oddsResult" class="small"></div>
+  </div>
+
+  <div class="card">
+    <h2>💎 Value-Bet Rechner</h2>
+    <p class="small">Gib deine geschätzte Wahrscheinlichkeit und die angebotene Quote ein. Positiver Value bedeutet: Quote ist höher als deine Einschätzung erwarten lässt.</p>
+    <div class="grid">
+      <div><label>Eigene Wahrscheinlichkeit %</label><input id="valueProb" type="number" step="1" placeholder="z. B. 60"></div>
+      <div><label>Angebotene Quote</label><input id="valueOdd" type="number" step="0.01" placeholder="z. B. 1.90"></div>
+    </div>
+    <button class="btn" onclick="calculateValueBet()">Value berechnen</button>
+    <div id="valueResult" class="small"></div>
+  </div>
+
+  <div class="card">
+    <h2>🔥 Top-Tipp automatisch finden</h2>
+    <p class="small">Sortiert deine Spiele nach Confidence und Risiko. Der beste Tipp des Tages wird automatisch vorgeschlagen.</p>
+    <button class="btn" onclick="findTopTip()">Top-Tipp finden</button>
+    <div id="topTipResult" class="small"></div>
+  </div>
+
+  <div class="card">
+    <h2>🏆 Top 3 Tipps + Kombi Generator</h2>
+    <p class="small">Wählt automatisch die 3 stärksten Tipps nach Confidence und Risiko und berechnet eine grobe Kombi-Quote aus den 1X2-Quoten.</p>
+    <button class="btn" onclick="generateTop3Combo()">Top 3 + Kombi erstellen</button>
+    <div id="comboResult" class="small"></div>
+  </div>
+
+  <div class="card">
+    <h2>⚽ Spiele bearbeiten</h2>
+    <div id="gameEditor"></div>
+  </div>
+
+  <div class="card">
+    <h2>📰 News bearbeiten</h2>
+    <div id="newsEditor"></div>
+    <button class="btn" onclick="addNews()">+ News hinzufügen</button>
+  </div>
+
+  <div class="card">
+    <h2>📄 Neue spiele.js</h2>
+    <p class="small">Alles kopieren und in deine Datei <b>spiele.js</b> einfügen – oder Download benutzen.</p>
+    <textarea id="output" class="output"></textarea>
+  </div>
+</main>
+
+<div class="footer">© 2026 MatchAnalysePro Admin</div>
+
+<script>
+let adminGames = JSON.parse(JSON.stringify(typeof games !== 'undefined' ? games : []));
+let adminNews = JSON.parse(JSON.stringify(typeof news !== 'undefined' ? news : []));
+let adminTables = typeof tables !== 'undefined' ? tables : {};
+
+function resetToday(){
+  adminGames = [
+    {id:"fulham-aston-villa",liga:"Premier League",heim:"Fulham",gast:"Aston Villa",heimWappen:"https://crests.football-data.org/63.svg",gastWappen:"https://crests.football-data.org/58.svg",zeit:"Heute · 13:30 Uhr",status:"Premier League",formHeim:"➖ ✅ ❌ ➖ ✅",formGast:"✅ ✅ ➖ ❌ ✅",wahrscheinlichkeit:{heim:31,remis:27,gast:42},quoten:{heim:"3.00",remis:"3.35",gast:"2.25"},tore:{over25:56,btts:61,under35:66},h2h:{heim:1,remis:1,gast:3},topPlayers:["Raúl Jiménez","Ollie Watkins","Morgan Rogers"],confidence:7.4,risikoLevel:"Mittel",tipp:"Aston Villa Draw No Bet",value:"Villa wirkt durch mehr Offensivqualität leicht im Vorteil.",risiko:"Fulham ist heimstark und kann das Spiel eng halten.",fazit:"Villa hat die bessere Ausgangslage, aber Absicherung ist sinnvoll."},
+    {id:"liverpool-crystal-palace",liga:"Premier League",heim:"Liverpool",gast:"Crystal Palace",heimWappen:"https://crests.football-data.org/64.svg",gastWappen:"https://crests.football-data.org/354.svg",zeit:"Heute · 16:00 Uhr",status:"Top Favorit",formHeim:"✅ ✅ ✅ ➖ ✅",formGast:"❌ ✅ ➖ ❌ ✅",wahrscheinlichkeit:{heim:66,remis:20,gast:14},quoten:{heim:"1.45",remis:"4.50",gast:"6.80"},tore:{over25:64,btts:55,under35:58},h2h:{heim:4,remis:0,gast:1},topPlayers:["Mohamed Salah","Darwin Núñez","Eberechi Eze"],confidence:8.6,risikoLevel:"Niedrig",tipp:"Liverpool Sieg",value:"Liverpool ist zuhause klar stärker.",risiko:"Palace kann über Konter gefährlich werden.",fazit:"Liverpool ist der klare Favorit des Spiels."},
+    {id:"west-ham-everton",liga:"Premier League",heim:"West Ham United",gast:"Everton",heimWappen:"https://crests.football-data.org/563.svg",gastWappen:"https://crests.football-data.org/62.svg",zeit:"Heute · 16:00 Uhr",status:"Enges Duell",formHeim:"❌ ➖ ✅ ❌ ➖",formGast:"➖ ❌ ✅ ➖ ❌",wahrscheinlichkeit:{heim:38,remis:31,gast:31},quoten:{heim:"2.45",remis:"3.20",gast:"2.95"},tore:{over25:47,btts:54,under35:73},h2h:{heim:2,remis:1,gast:2},topPlayers:["Jarrod Bowen","Lucas Paquetá","Dominic Calvert-Lewin"],confidence:6.8,risikoLevel:"Hoch",tipp:"Unter 3,5 Tore",value:"Das Spiel wirkt ausgeglichen und eher kontrolliert.",risiko:"Ein frühes Tor kann den Verlauf öffnen.",fazit:"Kein klarer Sieger, Under-Märkte wirken stabiler."},
+    {id:"wolves-tottenham",liga:"Premier League",heim:"Wolverhampton",gast:"Tottenham Hotspur",heimWappen:"https://crests.football-data.org/76.svg",gastWappen:"https://crests.football-data.org/73.svg",zeit:"Heute · 16:00 Uhr",status:"Tortrend",formHeim:"✅ ❌ ➖ ❌ ✅",formGast:"✅ ✅ ❌ ✅ ➖",wahrscheinlichkeit:{heim:28,remis:25,gast:47},quoten:{heim:"3.40",remis:"3.55",gast:"2.05"},tore:{over25:62,btts:64,under35:55},h2h:{heim:2,remis:0,gast:3},topPlayers:["Matheus Cunha","Heung-min Son","James Maddison"],confidence:7.6,risikoLevel:"Mittel",tipp:"Beide Teams treffen",value:"Beide Teams haben offensive Ansätze.",risiko:"Tottenham kann das Tempo herausnehmen.",fazit:"BTTS ist der spannendste Markt."},
+    {id:"arsenal-newcastle",liga:"Premier League",heim:"Arsenal",gast:"Newcastle",heimWappen:"https://crests.football-data.org/57.svg",gastWappen:"https://crests.football-data.org/67.svg",zeit:"Heute · 18:30 Uhr",status:"Topspiel",formHeim:"✅ ✅ ➖ ✅ ❌",formGast:"✅ ❌ ✅ ➖ ✅",wahrscheinlichkeit:{heim:54,remis:25,gast:21},quoten:{heim:"1.85",remis:"3.65",gast:"4.10"},tore:{over25:57,btts:58,under35:63},h2h:{heim:2,remis:1,gast:2},topPlayers:["Bukayo Saka","Martin Ødegaard","Alexander Isak"],confidence:7.7,risikoLevel:"Mittel",tipp:"Arsenal Sieg oder Over 1,5 Tore",value:"Arsenal hat Heimvorteil.",risiko:"Newcastle ist bei Standards stark.",fazit:"Arsenal ist Favorit, aber nicht risikofrei."},
+    {id:"getafe-barcelona",liga:"La Liga",heim:"Getafe",gast:"FC Barcelona",heimWappen:"https://crests.football-data.org/82.svg",gastWappen:"https://crests.football-data.org/81.svg",zeit:"Heute",status:"Titelrennen",formHeim:"➖ ✅ ❌ ✅ ➖",formGast:"✅ ✅ ✅ ✅ ➖",wahrscheinlichkeit:{heim:16,remis:25,gast:59},quoten:{heim:"6.20",remis:"4.00",gast:"1.55"},tore:{over25:52,btts:48,under35:68},h2h:{heim:1,remis:2,gast:2},topPlayers:["Robert Lewandowski","Pedri","Mason Greenwood"],confidence:8.0,risikoLevel:"Mittel",tipp:"Barcelona Sieg",value:"Barcelona ist qualitativ klar stärker.",risiko:"Getafe hält Heimspiele oft eng.",fazit:"Barcelona ist Favorit, aber Geduld ist wichtig."}
+  ];
+  adminNews = adminGames.map(g => ({category:g.liga,title:`${g.heim} gegen ${g.gast}: ${g.status}`,date:"Heute",content:`${g.heim} trifft auf ${g.gast}. Laut Modell liegt der Tipp bei ${g.tipp}, mit einem Confidence Score von ${g.confidence}/10. ${g.fazit} Risiko: ${g.risiko}`}));
+  renderEditors();
+  generateFile();
+}
+
+function renderEditors(){
+  const box=document.getElementById('gameEditor'); box.innerHTML='';
+  adminGames.forEach((g,i)=>{box.innerHTML+=`<div class="card"><div class="match-title">${i+1}. ${g.heim} vs ${g.gast}</div><div class="grid">
+  ${field(i,'liga','Liga',g.liga)}${field(i,'heim','Heimteam',g.heim)}${field(i,'gast','Gastteam',g.gast)}${field(i,'zeit','Zeit',g.zeit)}${field(i,'status','Status',g.status)}${field(i,'tipp','Tipp',g.tipp)}${field(i,'confidence','Confidence',g.confidence,'number')} ${field(i,'risikoLevel','Risiko-Level',g.risikoLevel)}${field(i,'heimWappen','Heim-Wappen URL',g.heimWappen)}${field(i,'gastWappen','Gast-Wappen URL',g.gastWappen)}</div>
+  <h3>Wahrscheinlichkeiten</h3><div class="grid">
+  ${nestedField(i,'wahrscheinlichkeit','heim','Heimsieg %',g.wahrscheinlichkeit?.heim || 33,'number')}${nestedField(i,'wahrscheinlichkeit','remis','Remis %',g.wahrscheinlichkeit?.remis || 33,'number')}${nestedField(i,'wahrscheinlichkeit','gast','Auswärtssieg %',g.wahrscheinlichkeit?.gast || 33,'number')}
+  </div>
+  <h3>Tormärkte</h3><div class="grid">
+  ${nestedField(i,'tore','over25','Over 2,5 %',g.tore?.over25 || 50,'number')}${nestedField(i,'tore','btts','BTTS %',g.tore?.btts || 50,'number')}${nestedField(i,'tore','under35','Under 3,5 %',g.tore?.under35 || 60,'number')}
+  </div>
+  <button class="btn" onclick="autoCalculateGame(${i})">⚡ Dieses Spiel automatisch berechnen</button>
+  <label>Fazit</label><textarea onchange="adminGames[${i}].fazit=this.value">${g.fazit}</textarea>
+  <label>News/Value Text</label><textarea onchange="adminGames[${i}].value=this.value">${g.value}</textarea>
+  <label>Risiko Text</label><textarea onchange="adminGames[${i}].risiko=this.value">${g.risiko}</textarea>
+  <button class="btn red" onclick="adminGames.splice(${i},1);renderEditors()">Spiel löschen</button></div>`});
+  const n=document.getElementById('newsEditor'); n.innerHTML='';
+  adminNews.forEach((a,i)=>{n.innerHTML+=`<div class="card"><div class="grid">${newsField(i,'category','Kategorie',a.category)}${newsField(i,'title','Titel',a.title)}${newsField(i,'date','Datum',a.date)}</div><label>Text</label><textarea onchange="adminNews[${i}].content=this.value">${a.content}</textarea><button class="btn red" onclick="adminNews.splice(${i},1);renderEditors()">News löschen</button></div>`});
+}
+function field(i,key,label,value,type='text'){return `<div><label>${label}</label><input type="${type}" value="${value}" onchange="adminGames[${i}]['${key}']=this.value"></div>`}
+function nestedField(i,obj,key,label,value,type='number'){return `<div><label>${label}</label><input type="${type}" value="${value}" onchange="adminGames[${i}]['${obj}']['${key}']=Number(this.value)"></div>`}
+function newsField(i,key,label,value){return `<div><label>${label}</label><input value="${value}" onchange="adminNews[${i}]['${key}']=this.value"></div>`}
+function addGame(){adminGames.push(JSON.parse(JSON.stringify(adminGames[0])));adminGames[adminGames.length-1].id='neues-spiel-'+Date.now();renderEditors()}
+function addNews(){adminNews.push({category:'News',title:'Neue News',date:'Heute',content:'Text einfügen...'});renderEditors()}
+
+function calculateOdds(){
+  const oh = Number(document.getElementById('oddHome').value);
+  const od = Number(document.getElementById('oddDraw').value);
+  const oa = Number(document.getElementById('oddAway').value);
+  const result = document.getElementById('oddsResult');
+
+  if(!oh || !od || !oa || oh <= 1 || od <= 1 || oa <= 1){
+    result.innerHTML = '<br>Bitte gültige Quoten über 1.00 eintragen.';
+    return;
+  }
+
+  const rawHome = 1 / oh;
+  const rawDraw = 1 / od;
+  const rawAway = 1 / oa;
+  const total = rawHome + rawDraw + rawAway;
+
+  const home = Math.round((rawHome / total) * 100);
+  const draw = Math.round((rawDraw / total) * 100);
+  const away = 100 - home - draw;
+  const margin = Math.round((total - 1) * 1000) / 10;
+
+  result.innerHTML = `<br><b>Saubere Wahrscheinlichkeiten:</b><br>Heim: ${home}% · Remis: ${draw}% · Auswärts: ${away}%<br><br><b>Buchmacher-Marge:</b> ca. ${margin}%<br><br><b>Für dein Spiel eintragen:</b><br>wahrscheinlichkeit: { heim: ${home}, remis: ${draw}, gast: ${away} }`;
+}
+
+function calculateValueBet(){
+  const prob = Number(document.getElementById('valueProb').value);
+  const odd = Number(document.getElementById('valueOdd').value);
+  const result = document.getElementById('valueResult');
+
+  if(!prob || !odd || prob <= 0 || prob >= 100 || odd <= 1){
+    result.innerHTML = '<br>Bitte gültige Werte eintragen.';
+    return;
+  }
+
+  const fairOdd = 100 / prob;
+  const value = ((odd * (prob / 100)) - 1) * 100;
+  const label = value > 5 ? '🔥 Starker Value' : value > 0 ? '✅ Leichter Value' : '⚠️ Kein Value';
+
+  result.innerHTML = `<br><b>${label}</b><br>Faire Quote: ${fairOdd.toFixed(2)}<br>Angebotene Quote: ${odd.toFixed(2)}<br>Value: ${value.toFixed(1)}%<br><br>${value > 0 ? 'Die Quote ist höher als deine Wahrscheinlichkeit erwarten lässt.' : 'Die Quote ist nach deiner Einschätzung nicht attraktiv genug.'}`;
+}
+
+function getGameRankScore(game){
+  const riskPenalty = { 'Niedrig': 0, 'Mittel': 0.6, 'Hoch': 1.3 };
+  return Number(game.confidence || 0) - (riskPenalty[game.risikoLevel] || 0);
+}
+
+function getSuggestedOdd(game){
+  const tip = (game.tipp || '').toLowerCase();
+  if(tip.includes((game.heim || '').toLowerCase()) || tip.includes('heim')) return Number(game.quoten?.heim || 1);
+  if(tip.includes((game.gast || '').toLowerCase()) || tip.includes('auswärts')) return Number(game.quoten?.gast || 1);
+  if(tip.includes('remis') || tip.includes('unentschieden')) return Number(game.quoten?.remis || 1);
+  if(tip.includes('over') || tip.includes('über') || tip.includes('btts') || tip.includes('beide') || tip.includes('unter')) return 1.75;
+  return 1.60;
+}
+
+function findTopTip(){
+  const result = document.getElementById('topTipResult');
+  if(!adminGames.length){
+    result.innerHTML = '<br>Keine Spiele vorhanden.';
+    return;
+  }
+
+  const sorted = [...adminGames].sort((a,b)=>getGameRankScore(b)-getGameRankScore(a));
+  const top = sorted[0];
+  result.innerHTML = `<br><b>Top-Tipp des Tages:</b><br>${top.heim} vs ${top.gast}<br><b>Tipp:</b> ${top.tipp}<br><b>Confidence:</b> ${top.confidence}/10<br><b>Risiko:</b> ${top.risikoLevel}<br><b>Ranking Score:</b> ${getGameRankScore(top).toFixed(1)}<br><br>Empfehlung: Dieses Spiel auf der Startseite besonders hervorheben.`;
+}
+
+function generateTop3Combo(){
+  const result = document.getElementById('comboResult');
+  if(adminGames.length < 3){
+    result.innerHTML = '<br>Du brauchst mindestens 3 Spiele.';
+    return;
+  }
+
+  const top3 = [...adminGames]
+    .sort((a,b)=>getGameRankScore(b)-getGameRankScore(a))
+    .slice(0,3);
+
+  const comboOdd = top3.reduce((total,g)=>total * getSuggestedOdd(g),1);
+  const avgConfidence = top3.reduce((sum,g)=>sum + Number(g.confidence || 0),0) / top3.length;
+  const highRisk = top3.some(g=>g.risikoLevel === 'Hoch');
+  const comboRisk = highRisk ? 'Hoch' : avgConfidence >= 8 ? 'Mittel' : 'Mittel bis Hoch';
+
+  result.innerHTML = `<br><b>🏆 Top 3 Tipps:</b><br><br>${top3.map((g,i)=>`${i+1}. ${g.heim} vs ${g.gast}<br><b>Tipp:</b> ${g.tipp}<br><b>Confidence:</b> ${g.confidence}/10 · Risiko: ${g.risikoLevel}<br><b>Grobe Quote:</b> ${getSuggestedOdd(g).toFixed(2)}<br>`).join('<br>')}<hr style="border-color:#20334d"><b>🎯 Kombi-Tipp:</b><br>Gesamtquote ca. <b>${comboOdd.toFixed(2)}</b><br>Durchschnitts-Confidence: <b>${avgConfidence.toFixed(1)}/10</b><br>Kombi-Risiko: <b>${comboRisk}</b><br><br><span style="color:#9fb0c3">Hinweis: Kombis sind immer riskanter als Einzelwetten. Für Content besser als Analyse-Hinweis nutzen, nicht als sichere Empfehlung.</span>`;
+}
+
+function autoCalculateGame(i){
+  const g = adminGames[i];
+  const home = Number(g.wahrscheinlichkeit?.heim || 33);
+  const draw = Number(g.wahrscheinlichkeit?.remis || 33);
+  const away = Number(g.wahrscheinlichkeit?.gast || 33);
+  const over = Number(g.tore?.over25 || 50);
+  const btts = Number(g.tore?.btts || 50);
+  const under = Number(g.tore?.under35 || 60);
+  const max = Math.max(home, draw, away);
+  const second = [home, draw, away].sort((a,b)=>b-a)[1];
+  const gap = max - second;
+
+  if (gap >= 25) g.confidence = 8.7;
+  else if (gap >= 15) g.confidence = 7.8;
+  else if (gap >= 8) g.confidence = 7.0;
+  else g.confidence = 6.2;
+
+  if (gap >= 22) g.risikoLevel = "Niedrig";
+  else if (gap >= 10) g.risikoLevel = "Mittel";
+  else g.risikoLevel = "Hoch";
+
+  if (home === max && gap >= 12) g.tipp = `${g.heim} Sieg`;
+  else if (away === max && gap >= 12) g.tipp = `${g.gast} Sieg`;
+  else if (over >= 60) g.tipp = "Über 2,5 Tore";
+  else if (btts >= 58) g.tipp = "Beide Teams treffen";
+  else if (under >= 68) g.tipp = "Unter 3,5 Tore";
+  else g.tipp = "Doppelte Chance / vorsichtig spielen";
+
+  const fav = home >= away ? g.heim : g.gast;
+  const closeText = gap < 10 ? "Das Spiel wirkt sehr ausgeglichen, deshalb ist das Risiko höher." : `${fav} hat laut Modell Vorteile.`;
+  const goalText = over >= 60 ? "Der Tortrend spricht für ein offeneres Spiel." : btts >= 58 ? "Beide Teams treffen ist ein interessanter Zusatzmarkt." : "Das Spiel wirkt eher kontrolliert.";
+  g.value = `${closeText} ${goalText} Der Tipp basiert auf Wahrscheinlichkeiten, Form und Marktlogik.`;
+  g.risiko = g.risikoLevel === "Niedrig" ? "Trotz Favoritenrolle bleibt Fußball unberechenbar." : g.risikoLevel === "Mittel" ? "Der Gegner hat genug Qualität, um den Tipp zu gefährden." : "Die Partie ist eng, deshalb sollte der Einsatz vorsichtig gewählt werden.";
+  g.fazit = `${g.tipp} ist aktuell der passendste Ansatz. Confidence: ${g.confidence}/10, Risiko: ${g.risikoLevel}.`;
+
+  renderEditors();
+  generateFile();
+}
+
+function autoCalculateAll(){
+  adminGames.forEach((_,i)=>autoCalculateGame(i));
+  adminNews = adminGames.map(g => ({
+    category: g.liga,
+    title: `${g.heim} gegen ${g.gast}: ${g.tipp}`,
+    date: "Heute",
+    content: `${g.heim} trifft auf ${g.gast}. Das Modell bewertet den Tipp „${g.tipp}“ mit einem Confidence Score von ${g.confidence}/10 und Risiko-Level ${g.risikoLevel}. ${g.value} ${g.fazit}`
+  }));
+  renderEditors();
+  generateFile();
+}
+function generateFile(){
+ const code=`const games = ${JSON.stringify(adminGames,null,2)};
+
+const news = ${JSON.stringify(adminNews,null,2)};
+
+const tables = ${JSON.stringify(adminTables,null,2)};
+
+${helperFunctions()}`;
+ document.getElementById('output').value=code;
+}
+function helperFunctions(){return `function getScoreTip(game) {
+  const diff = game.wahrscheinlichkeit.heim - game.wahrscheinlichkeit.gast;
+  if (diff >= 45) return "2:0";
+  if (diff >= 25) return "2:1";
+  if (diff <= -35) return "0:2";
+  if (diff <= -20) return "1:2";
+  if (game.tore.over25 >= 60) return "2:2";
+  return "1:1";
+}
+
+function getAiText(game) {
+  const fav = game.wahrscheinlichkeit.heim > game.wahrscheinlichkeit.gast ? game.heim : game.gast;
+  return fav + " hat laut Modell die besseren Grundwerte. Wichtig bleiben Form, Heimvorteil und Risiko-Level.";
+}
+
+function getStars(confidence) {
+  if (confidence >= 8.5) return "★★★★★";
+  if (confidence >= 7.5) return "★★★★☆";
+  if (confidence >= 6.5) return "★★★☆☆";
+  return "★★☆☆☆";
+}
+
+function crest(url) {
+  return '<img src="' + url + '" class="crest" alt="Vereinswappen" onerror="this.outerHTML=\'<span class=&quot;crest-fallback&quot;>⚽</span>\'">';
+}
+
+function teamLine(wappen, name) {
+  return '<span class="teamline">' + crest(wappen) + ' <span>' + name + '</span></span>';
+}`}
+function downloadFile(){generateFile();const blob=new Blob([document.getElementById('output').value],{type:'text/javascript'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='spiele.js';a.click()}
+renderEditors();generateFile();
+</script>
+<script src="spiele.js"></script>
+</body>
+</html>
